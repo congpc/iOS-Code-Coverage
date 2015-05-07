@@ -13,8 +13,8 @@
 		C5711D791AFB3C1A00F2BA8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5711D771AFB3C1A00F2BA8D /* Main.storyboard */; };
 		C5711D7B1AFB3C1A00F2BA8D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5711D7A1AFB3C1A00F2BA8D /* Images.xcassets */; };
 		C5711D7E1AFB3C1A00F2BA8D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5711D7C1AFB3C1A00F2BA8D /* LaunchScreen.xib */; };
-		C5711D951AFB402B00F2BA8D /* Calculator.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D941AFB402B00F2BA8D /* Calculator.m */; };
 		C5711D971AFB441E00F2BA8D /* CalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D961AFB441E00F2BA8D /* CalculatorTests.m */; };
+		C5711D9B1AFB62B300F2BA8D /* Calculator.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D9A1AFB62B300F2BA8D /* Calculator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,9 +40,9 @@
 		C5711D7D1AFB3C1A00F2BA8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		C5711D831AFB3C1A00F2BA8D /* DemoCodeCoverageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DemoCodeCoverageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5711D881AFB3C1A00F2BA8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C5711D931AFB402B00F2BA8D /* Calculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calculator.h; sourceTree = "<group>"; };
-		C5711D941AFB402B00F2BA8D /* Calculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calculator.m; sourceTree = "<group>"; };
 		C5711D961AFB441E00F2BA8D /* CalculatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalculatorTests.m; sourceTree = "<group>"; };
+		C5711D991AFB62B300F2BA8D /* Calculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calculator.h; sourceTree = "<group>"; };
+		C5711D9A1AFB62B300F2BA8D /* Calculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calculator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,8 +84,7 @@
 		C5711D6C1AFB3C1A00F2BA8D /* DemoCodeCoverage */ = {
 			isa = PBXGroup;
 			children = (
-				C5711D931AFB402B00F2BA8D /* Calculator.h */,
-				C5711D941AFB402B00F2BA8D /* Calculator.m */,
+				C5711D981AFB62B300F2BA8D /* Classes */,
 				C5711D711AFB3C1A00F2BA8D /* AppDelegate.h */,
 				C5711D721AFB3C1A00F2BA8D /* AppDelegate.m */,
 				C5711D741AFB3C1A00F2BA8D /* ViewController.h */,
@@ -122,6 +121,15 @@
 				C5711D881AFB3C1A00F2BA8D /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C5711D981AFB62B300F2BA8D /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				C5711D991AFB62B300F2BA8D /* Calculator.h */,
+				C5711D9A1AFB62B300F2BA8D /* Calculator.m */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -225,7 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C5711D761AFB3C1A00F2BA8D /* ViewController.m in Sources */,
-				C5711D951AFB402B00F2BA8D /* Calculator.m in Sources */,
+				C5711D9B1AFB62B300F2BA8D /* Calculator.m in Sources */,
 				C5711D731AFB3C1A00F2BA8D /* AppDelegate.m in Sources */,
 				C5711D701AFB3C1A00F2BA8D /* main.m in Sources */,
 			);
@@ -353,6 +361,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = DemoCodeCoverage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -363,6 +373,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				INFOPLIST_FILE = DemoCodeCoverage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";

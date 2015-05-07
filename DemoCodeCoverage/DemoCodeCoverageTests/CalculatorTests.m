@@ -12,6 +12,7 @@
 
 /**
  * Todo list:
+ * - Test addition, should return 0, when input param1 is nil and param2 is empty.
  * - Test addition, should return 0, when input param1 is nil or empty and param2 is right value.
  * - Test addition, should return 0, when input param2 is nil or empty and param1 is right value.
  * - Test addition, should return 0, when input param1 is not numberic and param2 is right value.
@@ -35,6 +36,18 @@
     [super tearDown];
 }
 
+- (void)testAddition_ShouldReturnZero_WhenInputParam1IsNilAndParam2IsEmpty {
+    //GIVEN
+    int expected = 0;
+    NSString *numberString1 = nil;
+    NSString *numberString2 = @"";
+    
+    //WHEN
+    int result = [self.testedObject additionWith:numberString1 number2:numberString2];
+    
+    //THEN
+    XCTAssertEqual(expected, result);
+}
 - (void)testAddition_ShouldReturnZero_WhenInputParam1IsNilOrEmptyAndParam2IsRightValue {
     //GIVEN
     int expected = 0;
