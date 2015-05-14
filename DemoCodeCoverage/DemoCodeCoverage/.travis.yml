@@ -1,5 +1,3 @@
 language: objective-c
-before_install:
-- brew update
-- brew install xctool
-script: xctool -project DemoCodeCoverage/DemoCodeCoverage.xcodeproj -scheme DemoCodeCoverage test
+xcode_project: DemoCodeCoverage/DemoCodeCoverage.xcodeproj
+xcode_scheme: DemoCodeCoverage
