@@ -1,3 +1,0 @@
-language: objective-c
-xcode_project: DemoCodeCoverage/DemoCodeCoverage.xcodeproj
-xcode_scheme: DemoCodeCoverage
