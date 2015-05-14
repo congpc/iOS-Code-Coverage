@@ -1,8 +1,0 @@
-language: objective-c
-before_install:
-    - brew update
-    - brew install xctool
-xcode_project: DemoCodeCoverage/DemoCodeCoverage.xcodeproj
-xcode_scheme: DemoCodeCoverage
-xcode_sdk: iphonesimulator
-script: xctool test -project DemoCodeCoverage/DemoCodeCoverage.xcodeproj -scheme DemoCodeCoverage -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
