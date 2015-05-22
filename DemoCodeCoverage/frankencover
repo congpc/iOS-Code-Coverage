@@ -1,0 +1,380 @@
+#!/usr/bin/env groovy
+import groovy.io.FileType
+import org.apache.tools.ant.util.FileUtils
+
+import org.apache.commons.cli.Option
+
+import static org.fusesource.jansi.Ansi.Attribute.INTENSITY_BOLD
+import static org.fusesource.jansi.Ansi.Attribute.INTENSITY_BOLD_OFF
+import static org.fusesource.jansi.Ansi.Color.RED
+import static org.fusesource.jansi.Ansi.Color.GREEN
+import static org.fusesource.jansi.Ansi.Color.YELLOW
+import static org.fusesource.jansi.Ansi.Color.DEFAULT
+import static org.fusesource.jansi.Ansi.ansi
+
+new FrankenCliReader(args).execute()
+
+class FrankenCliReader
+{
+
+    public String[] args
+    public CliBuilder cli
+
+    public FrankenCliReader(args)
+    {
+        super()
+        this.args = args
+        this.cli = initCliBuilder()
+    }
+
+    public void execute()
+    {
+        def opt = cli.parse(args)
+        if (!opt) {
+            System.exit(-1)
+        }
+        if (opt.h) {
+            cli.usage()
+        }
+
+
+        String outPutDir = opt.getProperty("o") ?: "build/reports"
+        String sourceDir = opt.getProperty("s")
+        List<String> excludedFileNames = opt.es ?: ["main.m","queue.h","once.h","CGGeometry.h","MKGeometry.h","NSRange.h"]
+
+        //Stop some non-source tree symbols leaking into the report
+        def reportConfig = new ReportConfig(directory: "${sourceDir}", excludeSymbols:excludedFileNames)
+
+        def ideConfig = new IDEConfig(withXcode: true, withAppCodeIfAvailable: true)
+        if (opt.getProperty("x") || opt.getProperty("a")) {
+            ideConfig.withAppCodeIfAvailable = opt.getProperty("a")
+            ideConfig.withXcode = opt.getProperty("x")
+        }
+        if (opt.getProperty("p")) {
+            ideConfig.customDirectory = opt.getProperty("p")
+        }
+
+        Double requiredCoverage = opt.getProperty("r") ? new Double(opt.getProperty("r").replaceAll("%", "")) : 0
+        def generator = new ReportGenerator(outPutDir, requiredCoverage, reportConfig, ideConfig, new AntBuilder(), opt.getProperty("d"),opt.getProperty("n"))
+        generator.generate()
+        System.exit(generator.failed ? -1 : 0)
+    }
+
+    private CliBuilder initCliBuilder()
+    {
+        def usageInstructions = """groovy http://frankencover.it/with -s <sourceDir> <options>\n\n
+        |For instructions on configuring Xcode to output coverage data, visit http://frankencover.it\n\n
+        """.stripMargin().stripIndent()
+        CliBuilder builder = new CliBuilder(usage: usageInstructions)
+        builder.with
+                {
+                    h(longOpt: 'help', 'Help - Usage Information')
+                    s(longOpt: 'source-dir', 'The source directory to generate coverage for', args: 1, type: String, required: true)
+                    o(longOpt: 'output-dir', 'The output directory to write coverage report', args: 1, type: String, required: false)
+                    p(longOpt: 'products-dir', 'Use custom directory to search for code coverage files, instead of the IDE default', args: 1, type: String, required: false)
+                    r(longOpt: 'required-coverage', 'Required line coverage', args: 1, type: String, required: false)
+                    a(longOpt: 'appcode', 'Search in AppCode\'s output directory. (default is both Xcode and AppCode\'s output dirs)', args: 0, type: boolean, required: false)
+                    x(longOpt: 'xcode', 'Search in Xcode\'s output directory. (default is both Xcode and AppCode\'s output dirs)', args: 0, type: boolean, required: false)
+                    d(longOpt: 'debug', 'Print debugging output.', type: boolean, required: false)
+                    n(longOpt: 'no-html', 'Only output lcov data. No html report', args: 0, type: boolean, required: false)					
+                    e(longOpt: 'exclude', 'Comma separated list of symbols to exclude from report', args: Option.UNLIMITED_VALUES, valueSeparator: ',', type: String, required: false)
+                }
+        return builder
+    }
+}
+
+
+class ReportGenerator
+{
+    String outputDir
+    Double requiredCoverage
+    ReportConfig reportConfig
+    IDEConfig ideConfig
+    AntBuilder ant
+    boolean debug
+	boolean noHtml
+    boolean failed
+
+    private File reportLocation
+
+    // ================================================================ //
+    // Constructors
+
+    ReportGenerator(outputDir, requiredCoverage, reportConfig, ideConfig, ant, debug, noHtml)
+    {
+        this.outputDir = outputDir
+        this.requiredCoverage = requiredCoverage
+        this.reportConfig = reportConfig
+        this.ideConfig = ideConfig
+        this.ant = ant
+        this.reportLocation = new File("${outputDir}/coverage")
+        this.debug = debug
+		this.noHtml = noHtml
+
+        print ansi().a(INTENSITY_BOLD)
+        print ansi().fg(YELLOW).a("\n▸ ")
+        print ansi().fg(DEFAULT).a("Code Coverage ").reset().a("${reportConfig.directory}\n")
+    }
+
+    // ================================================================ //
+    // Public
+
+    public void generate()
+    {
+        def tempDir = "${outputDir}/temp"
+        def collationDir = "${tempDir}/coverage-data-collate"
+        def coverageData = "${tempDir}/coverage-data"
+        def coverageInfoFile = "${tempDir}/coverage.info"
+        def genHtmlCmd = "genhtml -o ${escapeSpecialCharacters(reportLocation.absolutePath)} --prefix ${escapeSpecialCharacters(reportConfig.prefix())} ${escapeSpecialCharacters(coverageInfoFile)}"
+        def excludeSymbols = reportConfig.excludeSymbols.join(" ")
+		
+		if(this.noHtml)
+		{
+			genHtmlCmd = ""
+		}
+		
+        def script = """\
+            |mkdir -p ${escapeSpecialCharacters(collationDir)}
+            |mkdir -p ${escapeSpecialCharacters(coverageData)}
+			|mkdir -p ${escapeSpecialCharacters(reportLocation.absolutePath)}/data
+            |find ${escapeSpecialCharacters(ideConfig.searchDirectories())} ${reportConfig.dataFileNames()} | rsync --files-from=- / ${escapeSpecialCharacters(collationDir)}
+            |find ${escapeSpecialCharacters(collationDir)} -type file -exec cp -fr {} ${escapeSpecialCharacters(coverageData)} \\;
+            |rm -fr ${escapeSpecialCharacters(collationDir)}
+            |geninfo ${escapeSpecialCharacters(coverageData)}/*.gcno --no-recursion --output-filename ${escapeSpecialCharacters(coverageInfoFile)}.temp
+            |lcov -r ${escapeSpecialCharacters(coverageInfoFile)}.temp ${excludeSymbols} > ${escapeSpecialCharacters(coverageInfoFile)}        
+			|${genHtmlCmd} 		
+            |cp -R ${escapeSpecialCharacters(tempDir)}/* ${escapeSpecialCharacters(reportLocation.absolutePath)}/data
+            """.stripMargin()		
+		
+		def commands = script.split("\n")
+		
+		for(command in commands)
+		{
+	        if (debug) println(command)
+	        Process process = "bash".execute();
+	        process.outputStream.write(command.getBytes())
+	        process.outputStream.close()
+	        process.waitFor()
+		}
+
+        printSummary(coverageInfoFile)
+		if(!debug)
+			"rm -fr ${escapeSpecialCharacters(tempDir)}".execute().waitFor()
+
+    }
+
+    private void printSummary(coverageInfoFile)
+    {
+        OutputStream os = new ByteArrayOutputStream()
+        Process summary = "lcov --summary ${escapeSpecialCharacters(coverageInfoFile)}".execute()
+        summary.consumeProcessOutput(os, os)
+        summary.waitFor()
+
+
+        def parser = new ReportParser(os.toString())
+        parser.print()
+
+        if (parser.lineCoveragePercent < requiredCoverage) {
+            print ansi().a(INTENSITY_BOLD).fg(RED).a("  <----- Required coverage is ${requiredCoverage}%").reset()
+            failed = true
+        }
+        print ansi().a("\n").reset()
+		if(this.noHtml == false)
+		{
+			print ansi().a("   📊  full report..: ${outputDir}/coverage/index.html")
+		}
+        print ansi().a("\n\n").reset()
+    }
+	
+	private String escapeSpecialCharacters(toEscape) 
+	{
+		String escaped = toEscape.replace("(","\\(");
+		escaped = escaped.replace(")","\\)");		
+	}
+
+
+}
+
+
+class ReportParser
+{
+
+    Double lineCoveragePercent;
+    String lineCoverageDetail;
+
+    // ================================================================ //
+    // Constructors
+
+    ReportParser(String summary)
+    {
+        boolean linesFound = false
+        summary.eachLine {
+            if (it.contains("lines.....")) {
+                def lineSummaries = it.split("%")
+                lineCoveragePercent = lineSummaries[0].split()[1].toDouble()
+                lineCoverageDetail = lineSummaries[1].trim()
+                linesFound = true
+            }
+        }
+        if (!linesFound) {
+            throw new RuntimeException(ansi().a(INTENSITY_BOLD).fg(RED).a("\n\n✗ Coverage data not found\n").reset()
+                    .a("    ☐ To see how to set build flags, visit http://frankencover.it\n")
+                    .a("    ☐ Exercise your code with tests or otherwise.\n")
+                    .a("    ☐ Run this script again.\n\n").toString())
+        };
+    }
+
+    // ================================================================ //
+    // Public
+
+    void print()
+    {
+
+        print ansi().a(INTENSITY_BOLD)
+        if (lineCoveragePercent < 60) {
+            print ansi().fg(RED).a("    ✗").reset()
+            print ansi().a(" lines........: ")
+            print ansi().fg(RED)
+        }
+        else if (lineCoveragePercent < 79) {
+            print ansi().fg(YELLOW).a("    ⚠").reset()
+            print ansi().a(" lines........: ")
+            print ansi().fg(YELLOW)
+        }
+        else {
+            print ansi().fg(GREEN).a("    ✓").reset()
+            print ansi().a(" lines........: ")
+            print ansi().fg(GREEN)
+        }
+
+        print ansi().a(INTENSITY_BOLD)
+        print ansi().a("${lineCoveragePercent}% ").reset()
+        print ansi().a("${lineCoverageDetail}")
+    }
+
+
+}
+
+class ReportConfig
+{
+
+    String directory
+    List<String> excludeSymbols
+
+    //Private
+    private List<String> fileNames;
+
+    // ================================================================ //
+    // Public
+
+    String prefix()
+    {
+        def prefix
+        if (directory.startsWith("/")) {
+            prefix = directory
+        }
+        else {
+            def baseDir = new File(".").getAbsolutePath()
+            prefix = baseDir.substring(0, baseDir.length() - 1) + "${directory}"
+        }
+        return prefix
+    }
+
+    String dataFileNames()
+    {
+        def dataFiles = new ArrayList<String>();
+        cachedFileNames().each { fileName ->
+            dataFiles.add("-name ${fileName}.gcno")
+            dataFiles.add("-name ${fileName}.gcda")
+        }
+        dataFiles.join(' -o ')
+    }
+
+    public void setDirectory(String directory)
+    {
+        this.directory = directory.endsWith("/") ? directory : directory + "/"
+    }
+
+    // ================================================================ //
+    // Private
+
+    private List<String> cachedFileNames()
+    {
+        if (!fileNames) {
+            fileNames = new ArrayList<String>()
+
+            def searchDir = directory.startsWith("/") ? new File(directory) : new File("./${directory}")
+
+            searchDir.eachFileRecurse(FileType.FILES) { file ->
+                def fileName = file.name;
+                if (fileName.endsWith(".h")) {
+                    fileNames << fileName.substring(0, fileName.length() - 2)
+                }
+            }
+        }
+
+        //println ("Filenames: " + fileNames)
+        fileNames
+    }
+
+
+}
+
+class IDEConfig
+{
+
+    public boolean withAppCodeIfAvailable
+    public boolean withXcode
+    public String customDirectory
+
+    def cachedAppCodeDir = null
+
+    public String xcodeDir()
+    {
+        return "~/Library/Developer/Xcode/DerivedData"
+    }
+
+    public String appCodeDirOrNull()
+    {
+        if (cachedAppCodeDir == null) {
+            def highestAppCodeInstalled = 0
+            new File("${System.getProperty("user.home")}/Library/Caches").eachFile(FileType.DIRECTORIES) { directory ->
+                def dir = directory.name;
+                if (dir.startsWith("appCode")) {
+                    def appCodeVersion = dir.replaceAll("[^\\d.]", "").toInteger()
+                    highestAppCodeInstalled = appCodeVersion > highestAppCodeInstalled ? appCodeVersion : highestAppCodeInstalled
+                }
+            }
+            if (highestAppCodeInstalled) {
+                cachedAppCodeDir = "~/Library/Caches/appCode${highestAppCodeInstalled}"
+            }
+        }
+        return cachedAppCodeDir
+    }
+
+    public String searchDirectories()
+    {
+        return customDirectory ? customDirectory : ideDirectories()
+    }
+
+    public void setCustomDirectory(String customDirectory) {
+        println "setting custom dir to " + customDirectory
+        this.customDirectory = customDirectory
+        this.withAppCodeIfAvailable = false
+        this.withXcode = false
+    }
+
+    private String ideDirectories()
+    {
+        def searchDirectories = new StringBuilder()
+        if (withXcode) {
+            searchDirectories.append(xcodeDir())
+            searchDirectories.append(" ")
+        }
+        if (withAppCodeIfAvailable && appCodeDirOrNull() != null) {
+            searchDirectories.append(appCodeDirOrNull())
+        }
+        return searchDirectories.toString()
+    }
+
+}
