@@ -1,2 +1,2 @@
 # iOS-Code-Coverage
-Code Coverage for iOS
+Source code about code coverage for iOS project using http://frankencover.it/
