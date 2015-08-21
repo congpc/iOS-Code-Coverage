@@ -6,5 +6,5 @@ xcodebuild test -project DemoCodeCoverage.xcodeproj/ -scheme 'DemoCodeCoverage' 
 # Now Produce Test Coverage Report
 #groovy http://frankencover.it/with -source-dir "DemoCodeCoverage/Classes" -required-coverage 80
 # Use for local
-#groovy frankencover -source-dir "DemoCodeCoverage/Classes" -required-coverage 80
+groovy frankencover -source-dir "DemoCodeCoverage/Classes" -required-coverage 80
 
