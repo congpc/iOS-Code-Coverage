@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<testsuites name="AllTestUnits" tests="6" failures="0" errors="0" time="0.005131">
+    <testsuite tests="6" failures="0" errors="0" time="0.005131" timestamp="2015-08-28T12:44:43GMT+07:00" name="Toplevel Test Suite">
+        <testcase classname="CalculatorTests" name="testAddition_ShouldReturnRight_WhenInputParam1AndParam2AreValidValues" time="0.003717"></testcase>
+        <testcase classname="CalculatorTests" name="testAddition_ShouldReturnZero_WhenInputParam1IsNilAndParam2IsEmpty" time="0.000075"></testcase>
+        <testcase classname="CalculatorTests" name="testAddition_ShouldReturnZero_WhenInputParam1IsNilOrEmptyAndParam2IsRightValue" time="0.000064"></testcase>
+        <testcase classname="CalculatorTests" name="testAddition_ShouldReturnZero_WhenInputParam1IsNotNumbericAndParam2IsRightValue" time="0.000063"></testcase>
+        <testcase classname="CalculatorTests" name="testAddition_ShouldReturnZero_WhenInputParam2IsNilOrEmptyAndParam1IsRightValue" time="0.000058"></testcase>
+        <testcase classname="CalculatorTests" name="testAddition_ShouldReturnZero_WhenInputParam2IsNotNumbericAndParam1IsRightValue" time="0.000058"></testcase>
+    </testsuite>
+</testsuites>
