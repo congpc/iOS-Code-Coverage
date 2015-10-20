@@ -1,2 +1,2 @@
 # iOS-Code-Coverage
-Source code about code coverage for iOS project using http://frankencover.it/
+The detail in http://phamchicong.blogspot.com/2015/05/unit-test-huong-dan-config-frankencover.html
