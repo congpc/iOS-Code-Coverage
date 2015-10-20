@@ -15,6 +15,7 @@
 		C5711D7E1AFB3C1A00F2BA8D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5711D7C1AFB3C1A00F2BA8D /* LaunchScreen.xib */; };
 		C5711D971AFB441E00F2BA8D /* CalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D961AFB441E00F2BA8D /* CalculatorTests.m */; };
 		C5711D9B1AFB62B300F2BA8D /* Calculator.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D9A1AFB62B300F2BA8D /* Calculator.m */; };
+		C59D54FA1BD62281004EB692 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C59D54F91BD62281004EB692 /* Settings.bundle */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		C5711D961AFB441E00F2BA8D /* CalculatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalculatorTests.m; sourceTree = "<group>"; };
 		C5711D991AFB62B300F2BA8D /* Calculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calculator.h; sourceTree = "<group>"; };
 		C5711D9A1AFB62B300F2BA8D /* Calculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calculator.m; sourceTree = "<group>"; };
+		C59D54F91BD62281004EB692 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +86,7 @@
 		C5711D6C1AFB3C1A00F2BA8D /* DemoCodeCoverage */ = {
 			isa = PBXGroup;
 			children = (
+				C59D54F91BD62281004EB692 /* Settings.bundle */,
 				C5711D981AFB62B300F2BA8D /* Classes */,
 				C5711D711AFB3C1A00F2BA8D /* AppDelegate.h */,
 				C5711D721AFB3C1A00F2BA8D /* AppDelegate.m */,
@@ -142,6 +145,7 @@
 				C5711D661AFB3C1A00F2BA8D /* Sources */,
 				C5711D671AFB3C1A00F2BA8D /* Frameworks */,
 				C5711D681AFB3C1A00F2BA8D /* Resources */,
+				C59D54F81BD62261004EB692 /* Setup build number */,
 			);
 			buildRules = (
 			);
@@ -212,6 +216,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C59D54FA1BD62281004EB692 /* Settings.bundle in Resources */,
 				C5711D791AFB3C1A00F2BA8D /* Main.storyboard in Resources */,
 				C5711D7E1AFB3C1A00F2BA8D /* LaunchScreen.xib in Resources */,
 				C5711D7B1AFB3C1A00F2BA8D /* Images.xcassets in Resources */,
@@ -226,6 +231,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C59D54F81BD62261004EB692 /* Setup build number */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Setup build number";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n#!/bin/bash\n#get path to the BUILT .plist, NOT the packaged one! this fixes the off-by-one bug\nbuiltInfoPlistPath=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\necho \"using plist at $builtInfoPlistPath\"\n\n#increment the build number when to archieve new build\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print :CFBundleVersion\" \"$builtInfoPlistPath\")\necho \"retrieved current build number: $buildNumber\"\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"$builtInfoPlistPath\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"$INFOPLIST_FILE\"\n\n#compose the version number string\nversionString=$(/usr/libexec/PlistBuddy -c \"Print :CFBundleShortVersionString\" \"$builtInfoPlistPath\")\nversionString+=\" (\"\nversionString+=$(/usr/libexec/PlistBuddy -c \"Print :CFBundleVersion\" \"$builtInfoPlistPath\")\nversionString+=\")\"\n\n#write the version number string to the settings bundle\n#IMPORTANT: this assumes the version number is the second property in the settings bundle!\n/usr/libexec/PlistBuddy -c \"Set :PreferenceSpecifiers:1:DefaultValue $versionString\" \"Settings.bundle/Root.plist\"\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C5711D661AFB3C1A00F2BA8D /* Sources */ = {
