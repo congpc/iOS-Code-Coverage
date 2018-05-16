@@ -15,7 +15,7 @@
 		C5711D7E1AFB3C1A00F2BA8D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5711D7C1AFB3C1A00F2BA8D /* LaunchScreen.xib */; };
 		C5711D971AFB441E00F2BA8D /* CalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D961AFB441E00F2BA8D /* CalculatorTests.m */; };
 		C5711D9B1AFB62B300F2BA8D /* Calculator.m in Sources */ = {isa = PBXBuildFile; fileRef = C5711D9A1AFB62B300F2BA8D /* Calculator.m */; };
-		C59D54FA1BD62281004EB692 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C59D54F91BD62281004EB692 /* Settings.bundle */; settings = {ASSET_TAGS = (); }; };
+		C59D54FA1BD62281004EB692 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C59D54F91BD62281004EB692 /* Settings.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -185,6 +185,7 @@
 				TargetAttributes = {
 					C5711D691AFB3C1A00F2BA8D = {
 						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = AT989KJ27T;
 					};
 					C5711D821AFB3C1A00F2BA8D = {
 						CreatedOnToolsVersion = 6.3;
@@ -383,6 +384,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = AT989KJ27T;
 				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = DemoCodeCoverage/Info.plist;
@@ -396,6 +398,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = AT989KJ27T;
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				INFOPLIST_FILE = DemoCodeCoverage/Info.plist;

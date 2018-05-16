@@ -12,15 +12,7 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          name: Install Homebrew Dependencies
-          command: brew install yarn
-          
-      - run:
-          name: Install Node Dependencies
-          command: yarn install
-          
+         
       # Build the app and run tests
       - run:
           name: Build and run tests
