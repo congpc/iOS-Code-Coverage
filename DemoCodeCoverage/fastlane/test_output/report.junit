@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='DemoCodeCoverageTests.xctest' tests='6' failures='0'>
+  <testsuite name='CalculatorTests' tests='6' failures='0'>
+    <testcase classname='CalculatorTests' name='testAddition_ShouldReturnRight_WhenInputParam1AndParam2AreValidValues' time='0.001'/>
+    <testcase classname='CalculatorTests' name='testAddition_ShouldReturnZero_WhenInputParam1IsNilAndParam2IsEmpty' time='0.001'/>
+    <testcase classname='CalculatorTests' name='testAddition_ShouldReturnZero_WhenInputParam1IsNilOrEmptyAndParam2IsRightValue' time='0.001'/>
+    <testcase classname='CalculatorTests' name='testAddition_ShouldReturnZero_WhenInputParam1IsNotNumbericAndParam2IsRightValue' time='0.001'/>
+    <testcase classname='CalculatorTests' name='testAddition_ShouldReturnZero_WhenInputParam2IsNilOrEmptyAndParam1IsRightValue' time='0.001'/>
+    <testcase classname='CalculatorTests' name='testAddition_ShouldReturnZero_WhenInputParam2IsNotNumbericAndParam1IsRightValue' time='0.001'/>
+  </testsuite>
+</testsuites>
